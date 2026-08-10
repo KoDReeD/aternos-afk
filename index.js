@@ -4,7 +4,7 @@ const bedrock = require('bedrock-protocol');
 const config = {
     host: 'kodred_x.aternos.me',
     port: 60943,
-    username: 'AternosGuard',
+    username: 'AternosGuardAuto',
     version: '1.20.80' // Обман версии для совместимости
 };
 
