@@ -4,6 +4,6 @@
   "description": "AFK bot for Aternos Bedrock",
   "main": "index.js",
   "dependencies": {
-    "bedrock-protocol": "^1.26.0"
+    "bedrock-protocol": "*"
   }
 }
