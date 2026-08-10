@@ -45,7 +45,7 @@ function createBot() {
                         xuid: '',
                         platform_chat_id: '',
                         message: JSON.stringify({
-                            rawtext: [{ text: `* ${currentUsername} охраняет сервер от выключения` }]
+                            rawtext: [{ text: `привет, красотка!` }]
                         })
                     });
                     console.log('[Бот] Отправлен видимый пакет активности.');
