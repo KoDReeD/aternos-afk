@@ -26,31 +26,27 @@ function createBot() {
             version: config.version,
             offline: true,
             skipPing: true // Игнорируем предварительный пинг
-            // РЕШЕНИЕ: Убрали raknetBackend и clientGUID, вызывавшие ошибку синтаксиса сокета на Linux
         });
 
         client.on('join', () => {
             console.log(`[Бот] Успешно авторизовался и зашел в мир под ником ${currentUsername}!`);
             console.log('[Бот] Режим удержания сервера активен.');
 
-            // Очищаем старый интервал и запускаем новый
+            // Каждые 2 минуты отправляем точку в чат, чтобы Aternos видел активность и не кикал
             clearInterval(afkInterval);
             afkInterval = setInterval(() => {
                 if (client && client.status === 'playing') {
-                    // Используем тип пакета 'json_whisper' — он позволяет слать команды от имени оффлайн-игрока
                     client.write('text', {
-                        type: 'json_whisper', 
+                        type: 'chat',
                         needs_translation: false,
                         source_name: currentUsername,
                         xuid: '',
                         platform_chat_id: '',
-                        message: JSON.stringify({
-                            rawtext: [{ text: `привет, красотка!` }]
-                        })
+                        message: '.' // Точка в чат раз в 2 минуты
                     });
-                    console.log('[Бот] Отправлен видимый пакет активности.');
+                    console.log('[Бот] Отправлен пакет чата для сброса AFK.');
                 }
-            }, 120000); // Раз в 2 минуты
+            }, 120000); 
         });
 
         client.on('close', (reason) => {
