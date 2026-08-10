@@ -33,22 +33,24 @@ function createBot() {
             console.log(`[Бот] Успешно авторизовался и зашел в мир под ником ${currentUsername}!`);
             console.log('[Бот] Режим удержания сервера активен.');
 
-            // ИСПРАВЛЕНИЕ БЕЗДЕЙСТВИЯ (AFK)
-            // Каждые 2 минуты отправляем точку в чат, чтобы Aternos видел активность и не кикал
+            // Очищаем старый интервал и запускаем новый
             clearInterval(afkInterval);
             afkInterval = setInterval(() => {
                 if (client && client.status === 'playing') {
+                    // Используем тип пакета 'json_whisper' — он позволяет слать команды от имени оффлайн-игрока
                     client.write('text', {
-                        type: 'chat',
+                        type: 'json_whisper', 
                         needs_translation: false,
                         source_name: currentUsername,
                         xuid: '',
                         platform_chat_id: '',
-                        message: 'привет, красотка!' // Точка в чат раз в 2 минуты
+                        message: JSON.stringify({
+                            rawtext: [{ text: `* ${currentUsername} охраняет сервер от выключения` }]
+                        })
                     });
-                    console.log('[Бот] Отправлен пакет чата для сброса AFK.');
+                    console.log('[Бот] Отправлен видимый пакет активности.');
                 }
-            }, 120000); 
+            }, 120000); // Раз в 2 минуты
         });
 
         client.on('close', (reason) => {
