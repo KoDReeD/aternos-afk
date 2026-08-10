@@ -12,8 +12,7 @@ let client;
 let afkInterval;
 
 function createBot() {
-    // Генерируем случайный ник при каждом перезаходе (например, Guard_a1b2)
-    // Это нужно, чтобы избежать ошибки "loggedinOtherLocation", если прошлая сессия зависла в памяти Aternos
+    // Оставляем динамический ник, чтобы сессии не конфликтовали при реконнекте
     const randomId = crypto.randomBytes(2).toString('hex');
     const currentUsername = `Guard_${randomId}`;
 
@@ -26,31 +25,30 @@ function createBot() {
             username: currentUsername,
             version: config.version,
             offline: true,
-            skipPing: true,
-            raknetBackend: 'raknet-node', 
-            clientGUID: crypto.randomBytes(8).readBigUInt64BE() // Генерируем уникальный ID устройства
+            skipPing: true // Игнорируем предварительный пинг
+            // РЕШЕНИЕ: Убрали raknetBackend и clientGUID, вызывавшие ошибку синтаксиса сокета на Linux
         });
 
         client.on('join', () => {
             console.log(`[Бот] Успешно авторизовался и зашел в мир под ником ${currentUsername}!`);
             console.log('[Бот] Режим удержания сервера активен.');
 
-            // ИСПРАВЛЕНИЕ БЕЗДЕЙСТВИЯ: Очищаем старый интервал и запускаем новый
+            // ИСПРАВЛЕНИЕ БЕЗДЕЙСТВИЯ (AFK)
+            // Каждые 2 минуты отправляем точку в чат, чтобы Aternos видел активность и не кикал
             clearInterval(afkInterval);
             afkInterval = setInterval(() => {
                 if (client && client.status === 'playing') {
-                    // Отправляем пакет чата. Сервер видит активность и сбрасывает AFK-таймер
                     client.write('text', {
                         type: 'chat',
                         needs_translation: false,
                         source_name: currentUsername,
                         xuid: '',
                         platform_chat_id: '',
-                        message: 'привет, красотка!' // Бот будет писать точку в чат раз в 2 минуты
+                        message: 'привет, красотка!' // Точка в чат раз в 2 минуты
                     });
-                    console.log('[Бот] Отправлен пакет активности в чат для сброса AFK.');
+                    console.log('[Бот] Отправлен пакет чата для сброса AFK.');
                 }
-            }, 120000); // 120000 мс = 2 минуты
+            }, 120000); 
         });
 
         client.on('close', (reason) => {
@@ -71,7 +69,7 @@ function createBot() {
 // Запуск
 createBot();
 
-// Веб-заглушка для Render и внешних пингеров
+// Веб-заглушка для Render и UptimeRobot
 const http = require('http');
 http.createServer((req, res) => { 
     res.write("Bedrock Бот активен"); 
@@ -79,7 +77,7 @@ http.createServer((req, res) => {
 }).listen(process.env.PORT || 3000);
 
 process.on('SIGINT', () => {
-    console.log('\n[Бот] Получен сигнал выключения (Ctrl+C)...');
+    console.log('\n[Бот] Выключение...');
     clearInterval(afkInterval);
     if (client) client.close(); 
     setTimeout(() => process.exit(0), 500);
