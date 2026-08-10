@@ -1,9 +1,9 @@
 {
-  "name": "aternos-afk-bot",
+  "name": "aternos-bedrock-afk",
   "version": "1.0.0",
-  "description": "AFK bot for Aternos",
+  "description": "AFK bot for Aternos Bedrock",
   "main": "index.js",
   "dependencies": {
-    "mineflayer": "^4.20.0"
+    "bedrock-protocol": "^1.26.0"
   }
 }
